@@ -1,3 +1,9 @@
+// Early scroll reset and hash clearing to prevent browser native jumps
+if (window.location.hash === '#home') {
+    history.replaceState('', document.title, window.location.pathname + window.location.search);
+}
+window.scrollTo({ top: 0, behavior: 'instant' });
+
 document.addEventListener('DOMContentLoaded', () => {
     try { initClock(); } catch (e) { console.error("Clock Error:", e); }
     try { initDayStatus(); } catch (e) { console.error("Day Status Error:", e); }
@@ -28,6 +34,23 @@ document.addEventListener('DOMContentLoaded', () => {
             ticker.textContent = "Welcome to Suresh Memorial Institute! (Status Update Pending)";
         }
     }, 2000);
+
+    // CRITICAL: Force scroll to top after ALL initializations are done
+    // This overrides browser anchor jumping and layout shifts during loading
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+
+    const forceTop = () => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+    };
+
+    // Call immediately and at intervals to ensure layout has settled
+    forceTop();
+    requestAnimationFrame(forceTop);
+    [50, 100, 250, 500].forEach(delay => setTimeout(forceTop, delay));
 });
 
 function initImageErrorHandling() {
@@ -133,11 +156,9 @@ function initNavigation() {
             setTimeout(() => targetSection.classList.add('active-section'), 10);
 
             // Scroll to top when switching sections
-            // On initial load, ensure we stay at the top instantly
-            if (isInitial) {
-                window.scrollTo({ top: 0, behavior: 'instant' });
-                setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 0);
-            } else {
+            // For initial load, we handle this globally at the end of script.js and window.onload
+            // to avoid competing with browser native anchor jumping.
+            if (!isInitial) {
                 window.scrollTo(0, 0);
             }
         }
@@ -174,6 +195,13 @@ function initNavigation() {
     // Check for hash in URL on load, otherwise default to Home
     const initialSection = window.location.hash || '#home';
     showSection(initialSection, true);
+
+    // Global Scroll Reset Failsafe - Catch any post-render shifts
+    window.addEventListener('load', () => {
+        if (!window.location.hash || window.location.hash === '#home') {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+    });
 
     // Handle Link Clicks
     links.forEach(link => {
