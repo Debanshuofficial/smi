@@ -155,7 +155,7 @@
                         </div>
                         <div class="counter-item">
                             <h3 class="counter-value" data-target="26">0</h3>
-                            <p class="counter-label">Years of Service</p>
+                            <p class="counter-label">Experience</p>
                         </div>
                     </div>
 
@@ -338,46 +338,88 @@
                         Facilities</h2>
                     <p style="color: var(--text-muted);">World-class infrastructure for holistic learning</p>
                 </div>
-                <div class="celebration-grid"> <!-- Reusing grid class -->
-                    <div class="glass-card" style="text-align: center;">
-                        <i class="fa-solid fa-flask"
-                            style="font-size: 3rem; color: var(--secondary-accent); margin-bottom: 1rem;"></i>
-                        <h3>Science Labs</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted);">Physics, Chemistry, and Biology labs
-                            equipped with modern apparatus.</p>
+                <div class="facilities-wrapper" style="position: relative; min-height: 500px;">
+                    <!-- Grid View (Default) -->
+                    <div class="celebration-grid" id="facilities-grid">
+                        <div class="glass-card facility-card" data-index="0" style="text-align: center;">
+                            <i class="fa-solid fa-flask"
+                                style="font-size: 3rem; color: var(--secondary-accent); margin-bottom: 1rem;"></i>
+                            <h3>Science Labs</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">Physics, Chemistry, and Biology labs
+                                equipped with modern apparatus.</p>
+                            <button class="view-facility-btn">View Gallery <i class="fa-solid fa-images"></i></button>
+                        </div>
+                        <div class="glass-card facility-card" data-index="1" style="text-align: center;">
+                            <i class="fa-solid fa-computer"
+                                style="font-size: 3rem; color: var(--primary-accent); margin-bottom: 1rem;"></i>
+                            <h3>Computer Lab</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">High-tech computer lab with
+                                high-speed
+                                internet for digital literacy.</p>
+                            <button class="view-facility-btn">View Gallery <i class="fa-solid fa-images"></i></button>
+                        </div>
+                        <div class="glass-card facility-card" data-index="2" style="text-align: center;">
+                            <i class="fa-solid fa-book" style="font-size: 3rem; color: gold; margin-bottom: 1rem;"></i>
+                            <h3>Library</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">Vast collection of books, journals,
+                                and
+                                e-resources for students.</p>
+                            <button class="view-facility-btn">View Gallery <i class="fa-solid fa-images"></i></button>
+                        </div>
+                        <div class="glass-card facility-card" data-index="3" style="text-align: center;">
+                            <i class="fa-solid fa-futbol"
+                                style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;"></i>
+                            <h3>Playground</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">Large playground for sports and
+                                physical
+                                activities.</p>
+                            <button class="view-facility-btn">View Gallery <i class="fa-solid fa-images"></i></button>
+                        </div>
+                        <div class="glass-card facility-card" data-index="4" style="text-align: center;">
+                            <i class="fa-solid fa-bus"
+                                style="font-size: 3rem; color: #f97316; margin-bottom: 1rem;"></i>
+                            <h3>Transport</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">Safe and reliable bus service
+                                covering
+                                all major routes.</p>
+                            <button class="view-facility-btn">View Gallery <i class="fa-solid fa-images"></i></button>
+                        </div>
+                        <div class="glass-card facility-card" data-index="5" style="text-align: center;">
+                            <i class="fa-solid fa-person-swimming"
+                                style="font-size: 3rem; color: #06b6d4; margin-bottom: 1rem;"></i>
+                            <h3>Swimming Pool</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">Well-maintained swimming pool with
+                                professional trainers.</p>
+                            <button class="view-facility-btn">View Gallery <i class="fa-solid fa-images"></i></button>
+                        </div>
                     </div>
-                    <div class="glass-card" style="text-align: center;">
-                        <i class="fa-solid fa-computer"
-                            style="font-size: 3rem; color: var(--primary-accent); margin-bottom: 1rem;"></i>
-                        <h3>Computer Lab</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted);">High-tech computer lab with high-speed
-                            internet for digital literacy.</p>
-                    </div>
-                    <div class="glass-card" style="text-align: center;">
-                        <i class="fa-solid fa-book" style="font-size: 3rem; color: gold; margin-bottom: 1rem;"></i>
-                        <h3>Library</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted);">Vast collection of books, journals, and
-                            e-resources for students.</p>
-                    </div>
-                    <div class="glass-card" style="text-align: center;">
-                        <i class="fa-solid fa-futbol" style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;"></i>
-                        <h3>Playground</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted);">Large playground for sports and physical
-                            activities.</p>
-                    </div>
-                    <!-- New Facilities -->
-                    <div class="glass-card" style="text-align: center;">
-                        <i class="fa-solid fa-bus" style="font-size: 3rem; color: #f97316; margin-bottom: 1rem;"></i>
-                        <h3>Transport</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted);">Safe and reliable bus service covering
-                            all major routes.</p>
-                    </div>
-                    <div class="glass-card" style="text-align: center;">
-                        <i class="fa-solid fa-person-swimming"
-                            style="font-size: 3rem; color: #06b6d4; margin-bottom: 1rem;"></i>
-                        <h3>Swimming Pool</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted);">Well-maintained swimming pool with
-                            professional trainers.</p>
+
+                    <!-- Gallery View (Integrated) -->
+                    <div class="gallery-view-container" id="gallery-view" style="display: none;">
+                        <div class="gallery-layout">
+                            <!-- Left Sidebar Bubbles -->
+                            <div class="gallery-bubble-sidebar" id="gallery-bubbles">
+                                <!-- Re-rendered or shown via JS -->
+                            </div>
+
+                            <!-- Right Slider Card -->
+                            <div class="gallery-main-card glass-card">
+                                <button class="close-gallery-btn-inline" title="Back to Grid">
+                                    <i class="fa-solid fa-xmark"></i> <span class="btn-text">Exit Gallery</span>
+                                </button>
+                                <div class="gallery-slider-box" id="gallery-slider">
+                                    <!-- Slides dynamically inserted by JS -->
+                                </div>
+                                <div class="gallery-content-overlay">
+                                    <h2 id="gallery-title">Facility Name</h2>
+                                    <p id="gallery-desc">Description goes here.</p>
+                                    <div class="gallery-controls">
+                                        <button id="gallery-prev"><i class="fa-solid fa-chevron-left"></i></button>
+                                        <button id="gallery-next"><i class="fa-solid fa-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

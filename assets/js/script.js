@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try { initCounters(); } catch (e) { console.error("Counter Error:", e); }
     try { initAcademicProgress(); } catch (e) { console.error("Progress Error:", e); }
+    try { initFacilityGallery(); } catch (e) { console.error("Gallery Error:", e); }
 
     try { initImageErrorHandling(); } catch (e) { console.error("Img Error Handler Error:", e); }
 
@@ -488,3 +489,173 @@ function initAcademicProgress() {
         updateNum();
     }, 500);
 }
+
+/**
+ * Facility Gallery Mode Logic - Integrated In-Page Version
+ */
+function initFacilityGallery() {
+    const wrapper = document.querySelector('.facilities-wrapper');
+    const bubbleSidebar = document.getElementById('gallery-bubbles');
+    const closeBtn = document.querySelector('.close-gallery-btn-inline');
+    const sliderBox = document.getElementById('gallery-slider');
+    const titleEl = document.getElementById('gallery-title');
+    const descEl = document.getElementById('gallery-desc');
+    const prevBtn = document.getElementById('gallery-prev');
+    const nextBtn = document.getElementById('gallery-next');
+
+    // Solid Data Structure
+    const FACILITY_DATA = [
+        { title: "Science Labs", icon: "fa-flask", color: "var(--secondary-accent)", desc: "Advanced labs for Physics, Chemistry, and Biology research.", images: ['p1.jpg', 'p2.jpg', 'img1.jpeg'] },
+        { title: "Computer Lab", icon: "fa-computer", color: "var(--primary-accent)", desc: "Modern digital resource center with high-speed connectivity.", images: ['p3.jpg', 'p4.jpg', 'img1.jpeg'] },
+        { title: "Library", icon: "fa-book", color: "gold", desc: "A vast collection of academic and fictional literature.", images: ['p1.jpg', 'p3.jpg', 'img1.jpeg'] },
+        { title: "Playground", icon: "fa-futbol", color: "#10b981", desc: "Professional quality sports fields for students.", images: ['p2.jpg', 'p4.jpg', 'img1.jpeg'] },
+        { title: "Transport", icon: "fa-bus", color: "#f97316", desc: "Safe and secure transport covering all major routes.", images: ['p1.jpg', 'p4.jpg', 'img1.jpeg'] },
+        { title: "Swimming Pool", icon: "fa-person-swimming", color: "#06b6d4", desc: "State-of-the-art pool for training and recreation.", images: ['p2.jpg', 'p3.jpg', 'img1.jpeg'] }
+    ];
+
+    let currentFacilityIdx = 0;
+    let currentSlideIdx = 0;
+    let autoTimer = null;
+
+    // --- Core Rendering ---
+
+    function renderActiveCategory(skipScroll = false) {
+        if (!sliderBox) return;
+        const data = FACILITY_DATA[currentFacilityIdx];
+
+        // Update Meta Text
+        if (titleEl) titleEl.textContent = data.title;
+        if (descEl) descEl.textContent = data.desc;
+
+        // Re-generate current slides
+        sliderBox.innerHTML = '';
+        data.images.forEach((img, i) => {
+            const slide = document.createElement('div');
+            slide.className = `gallery-slide ${i === currentSlideIdx ? 'active' : ''}`;
+            slide.style.backgroundImage = `url('${img}')`;
+            sliderBox.appendChild(slide);
+        });
+
+        // Always re-sync bubbles
+        updateBubbles(skipScroll);
+    }
+
+    function updateBubbles(skipScroll) {
+        if (!bubbleSidebar) return;
+        bubbleSidebar.innerHTML = '';
+        FACILITY_DATA.forEach((data, i) => {
+            const bubble = document.createElement('div');
+            bubble.className = `gallery-bubble ${i === currentFacilityIdx ? 'active' : ''}`;
+            bubble.innerHTML = `<i class="fa-solid ${data.icon}" style="color: ${data.color}"></i>`;
+            bubble.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                jumpTo(i);
+            });
+            bubbleSidebar.appendChild(bubble);
+        });
+
+        if (!skipScroll) {
+            setTimeout(() => {
+                const active = bubbleSidebar.querySelector('.gallery-bubble.active');
+                if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }, 100);
+        }
+    }
+
+    // --- State Control ---
+
+    function move(dir) {
+        const images = FACILITY_DATA[currentFacilityIdx].images;
+        let nextIdx = currentSlideIdx + dir;
+
+        if (nextIdx >= images.length) {
+            // Switch to next category
+            currentFacilityIdx = (currentFacilityIdx + 1) % FACILITY_DATA.length;
+            currentSlideIdx = 0;
+            renderActiveCategory();
+        } else if (nextIdx < 0) {
+            // Switch to prev category
+            currentFacilityIdx = (currentFacilityIdx - 1 + FACILITY_DATA.length) % FACILITY_DATA.length;
+            currentSlideIdx = FACILITY_DATA[currentFacilityIdx].images.length - 1;
+            renderActiveCategory();
+        } else {
+            // Same category transition
+            currentSlideIdx = nextIdx;
+            syncSlideVisibility();
+        }
+    }
+
+    function syncSlideVisibility() {
+        if (!sliderBox) return;
+        const slides = sliderBox.querySelectorAll('.gallery-slide');
+        slides.forEach((s, i) => s.classList.toggle('active', i === currentSlideIdx));
+    }
+
+    function jumpTo(idx) {
+        currentFacilityIdx = idx;
+        currentSlideIdx = 0;
+        renderActiveCategory();
+        resetAutoTimer();
+    }
+
+    // --- Android Optimized Timer ---
+
+    function startAuto() {
+        stopAuto();
+        autoTimer = setTimeout(autoStep, 5000);
+    }
+
+    function autoStep() {
+        if (!wrapper || !wrapper.classList.contains('gallery-mode')) return;
+        move(1); // Standard directional move
+        autoTimer = setTimeout(autoStep, 5000);
+    }
+
+    function stopAuto() {
+        if (autoTimer) {
+            clearTimeout(autoTimer);
+            autoTimer = null;
+        }
+    }
+
+    function resetAutoTimer() {
+        stopAuto();
+        startAuto();
+    }
+
+    // --- External Shims ---
+
+    function open(idx) {
+        currentFacilityIdx = idx;
+        currentSlideIdx = 0;
+        if (wrapper) wrapper.classList.add('gallery-mode');
+        renderActiveCategory();
+        startAuto();
+
+        const target = document.getElementById('facilities');
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function close() {
+        if (wrapper) wrapper.classList.remove('gallery-mode');
+        stopAuto();
+    }
+
+    // --- Event Setup ---
+
+    document.querySelectorAll('.view-facility-btn').forEach((btn, i) => {
+        btn.addEventListener('click', (e) => { e.preventDefault(); open(i); });
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', (e) => { e.preventDefault(); close(); });
+    if (nextBtn) nextBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); move(1); resetAutoTimer(); });
+    if (prevBtn) prevBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); move(-1); resetAutoTimer(); });
+
+    // Handle Page backgrounding for mobile
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopAuto();
+        else if (wrapper && wrapper.classList.contains('gallery-mode')) startAuto();
+    });
+}
+
