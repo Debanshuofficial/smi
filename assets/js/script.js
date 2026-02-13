@@ -110,8 +110,13 @@ function initNavigation() {
     const links = document.querySelectorAll('.nav-links a');
     const sections = document.querySelectorAll('main section');
 
+    // Prevent browser from restoring scroll position on refresh
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+
     // Function to show specific section
-    function showSection(targetId) {
+    function showSection(targetId, isInitial = false) {
         // Remove hash from ID if present
         const id = targetId.replace('#', '');
 
@@ -127,9 +132,14 @@ function initNavigation() {
             targetSection.style.display = 'block';
             setTimeout(() => targetSection.classList.add('active-section'), 10);
 
-            // Scroll to top when switching sections, but only if it's a manual click
-            // If it's the initial load, we might not want to jump if they refreshed at a certain scroll point
-            window.scrollTo(0, 0);
+            // Scroll to top when switching sections
+            // On initial load, ensure we stay at the top instantly
+            if (isInitial) {
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 0);
+            } else {
+                window.scrollTo(0, 0);
+            }
         }
 
         // Update Nav Active State
@@ -141,16 +151,29 @@ function initNavigation() {
         });
 
         // Update URL hash for persistence on refresh
-        if (history.pushState) {
-            history.pushState(null, null, '#' + id);
+        // 1. If it's the initial load of home and there was no hash, don't add one (keeps URL clean)
+        if (isInitial && id === 'home' && !window.location.hash) {
+            return;
+        }
+
+        // 2. Use replaceState for initial load to avoid back-button history loops
+        if (isInitial) {
+            if (history.replaceState) {
+                history.replaceState(null, null, '#' + id);
+            }
         } else {
-            location.hash = '#' + id;
+            // 3. Normal pushState for manual clicks
+            if (history.pushState) {
+                history.pushState(null, null, '#' + id);
+            } else {
+                location.hash = '#' + id;
+            }
         }
     }
 
     // Check for hash in URL on load, otherwise default to Home
     const initialSection = window.location.hash || '#home';
-    showSection(initialSection);
+    showSection(initialSection, true);
 
     // Handle Link Clicks
     links.forEach(link => {
