@@ -94,7 +94,43 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Light Theme Overrides for Loading Screen */
+        html[data-theme="light"] .loading-screen {
+            background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+        }
+
+        html[data-theme="light"] .loading-text {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(to right, #FF9933 0%, #FF9933 35%, #000080 45%, #000080 55%, #138808 65%, #138808 100%) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: none;
+        }
+
+        html[data-theme="light"] .loading-spinner {
+            border-color: rgba(0, 0, 0, 0.1);
+            border-top-color: #FF9933 !important;
+            /* Indian Saffron */
+        }
     </style>
+    <script>
+        (function () {
+            try {
+                const localTheme = localStorage.getItem('theme');
+                /* Default to dark if no preference */
+                if (localTheme) {
+                    document.documentElement.setAttribute('data-theme', localTheme);
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) { }
+        })();
+    </script>
 
     <!-- Preloads -->
     <link rel="preload" href="assets/css/style.css" as="style">
@@ -142,6 +178,13 @@
         </div>
         <div class="header-utilities">
             <div class="clock-display" id="live-clock">--:--:--</div>
+            <label class="theme-switch" title="Switch Theme">
+                <input type="checkbox" id="theme-toggle-checkbox">
+                <span class="slider round">
+                    <i class="fa-solid fa-sun sun-icon"></i>
+                    <i class="fa-solid fa-moon moon-icon"></i>
+                </span>
+            </label>
             <a href="login.html" class="login-btn"><i class="fa-solid fa-user-graduate"></i> Guardian's
                 Login</a>
         </div>
@@ -149,7 +192,11 @@
 
     <!-- Navigation -->
     <div class="mobile-menu-toggle">
-        <i class="fa-solid fa-bars"></i>
+        <div class="hamburger-box">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
     </div>
 
     <!-- Navigation -->
@@ -162,6 +209,13 @@
             <li><a href="#facilities"><i class="fa-solid fa-school"></i> Facilities</a></li>
             <li><a href="#staff"><i class="fa-solid fa-users"></i> Staff</a></li>
             <li><a href="#contact"><i class="fa-solid fa-envelope"></i> Contact</a></li>
+            <li class="mobile-theme-item" style="display: none;">
+                <a href="#" id="mobile-theme-toggle">
+                    <i class="fa-solid fa-sun display-light-hidden"></i>
+                    <i class="fa-solid fa-moon display-dark-hidden" style="display:none;"></i>
+                    Switch Theme
+                </a>
+            </li>
         </ul>
     </nav>
 
@@ -231,8 +285,7 @@
                     </div>
 
                     <!-- Counter Bar Card -->
-                    <div class="glass-card counter-card" id="counter-card"
-                        style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; gap:1rem; text-align:center;">
+                    <div class="glass-card counter-card" id="counter-card">
                         <div class="counter-item">
                             <h3 class="counter-value" data-target="451">0</h3>
                             <p class="counter-label">Students</p>
@@ -774,21 +827,16 @@
     <!-- Footer -->
     <footer class="glass-footer" style="padding-top: 0;">
         <!-- Area for Year Progress - Directly attached to footer top -->
-        <div class="academic-progress-wrapper"
-            style="background:rgba(0,0,0,0.2); padding: 0.25rem 0; border-top:1px solid var(--glass-border);">
+        <div class="academic-progress-wrapper">
             <div class="container" style="display:flex; align-items:center; gap:10px;">
                 <span id="academic-year-label"
                     style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Academic
                     Year
                     Progress</span>
-                <div class="progress-container"
-                    style="background:rgba(255,255,255,0.05); height:2px; flex-grow:1; border-radius:1px; overflow:hidden;">
-                    <div class="progress-bar-fill" id="academic-progress-fill"
-                        style="width:0%; height:100%; background:linear-gradient(90deg, var(--primary-accent), var(--secondary-accent)); transition: width 1.5s ease-in-out;">
-                    </div>
+                <div class="progress-container">
+                    <div class="progress-bar-fill" id="academic-progress-fill"></div>
                 </div>
-                <span id="academic-year-percentage"
-                    style="font-size: 0.7rem; color: var(--primary-accent); font-family: monospace; min-width: 35px; text-align: right;">0%</span>
+                <span id="academic-year-percentage">0%</span>
             </div>
         </div>
 
@@ -815,19 +863,18 @@
         </div>
 
         <!-- Social Bubble Bar -->
-        <div class="social-bubble-bar-container"
-            style="display: flex; justify-content: center; margin: 1.5rem 0 1rem 0;">
-            <div class="social-bubble-bar"
-                style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 0.6rem 1.5rem; border-radius: 50px; display: flex; gap: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                <a href="https://wa.me/919749988456" class="social-icon whatsapp" title="WhatsApp"
-                    style="color: #25D366; font-size: 1.3rem; transition: transform 0.3s ease;"><i
-                        class="fa-brands fa-whatsapp"></i></a>
+        <div class="social-bubble-bar-container">
+            <div class="social-bubble-bar">
+                <a href="https://wa.me/919749988456" class="social-icon whatsapp" title="WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
                 <a href="https://www.facebook.com/SureshMemorialInstitute" class="social-icon facebook" title="Facebook"
-                    target="_blank" style="color: #1877F2; font-size: 1.3rem; transition: transform 0.3s ease;"><i
-                        class="fa-brands fa-facebook"></i></a>
-                <a href="#" class="social-icon instagram" title="Instagram"
-                    style="color: #E4405F; font-size: 1.3rem; transition: transform 0.3s ease;"><i
-                        class="fa-brands fa-instagram"></i></a>
+                    target="_blank">
+                    <i class="fa-brands fa-facebook"></i>
+                </a>
+                <a href="#" class="social-icon instagram" title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
             </div>
         </div>
 
@@ -861,6 +908,7 @@
             });
         }
     </script>
+    <script src="assets/js/theme.js?v=1.0.0" defer></script>
     <script src="assets/js/config.js?v=1.0.3" defer></script>
     <script src="assets/js/script.js?v=1.0.3" defer></script>
 </body>

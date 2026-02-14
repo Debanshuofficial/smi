@@ -145,6 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
     try { initDayStatus(); } catch (e) { console.error("Day Status Error:", e); }
     try { initNavigation(); } catch (e) { console.error("Nav Error:", e); }
     try { initStaticImages(); } catch (e) { console.error("Static Img Error:", e); }
+    // Theme is now handled by theme.js but called here to ensure order if bundled. 
+    // Assuming initTheme is globally available or imported.
+    if (typeof initTheme === 'function') {
+        try { initTheme(); } catch (e) { console.error("Theme Error:", e); }
+    }
 
     // Async Data Loading
     (async () => {
@@ -270,7 +275,7 @@ function initClock() {
         const options = { weekday: 'short', month: 'short', day: 'numeric' };
         const dateString = now.toLocaleDateString('en-US', options);
         const timeString = now.toLocaleTimeString('en-US', { hour12: true });
-        clockElement.innerHTML = `<span style="font-size:0.8em; opacity:0.8; margin-right:5px;">${dateString}</span> ${timeString}`;
+        clockElement.innerHTML = `<div class="clock-time">${timeString}</div><div class="clock-date" style="font-size:0.75em; opacity:0.8;">${dateString}</div>`;
     }
 
     setInterval(updateClock, 1000);
@@ -338,7 +343,7 @@ function initNavigation() {
             showSection(targetId);
             if (window.innerWidth <= 768) {
                 navLinksContainer.classList.remove('active');
-                if (toggle) toggle.querySelector('i').classList.replace('fa-times', 'fa-bars');
+                if (toggle) toggle.classList.remove('active');
             }
         });
     });
@@ -350,13 +355,10 @@ function initNavigation() {
             e.stopPropagation();
             navLinksContainer.classList.toggle('active');
             document.body.classList.toggle('no-scroll');
-            const icon = toggle.querySelector('i');
             if (navLinksContainer.classList.contains('active')) {
-                icon.classList.replace('fa-bars', 'fa-times');
-
+                toggle.classList.add('active');
             } else {
-                icon.classList.replace('fa-times', 'fa-bars');
-
+                toggle.classList.remove('active');
             }
         });
         document.addEventListener('click', (e) => {
@@ -364,7 +366,7 @@ function initNavigation() {
                 if (!navLinksContainer.contains(e.target) && !toggle.contains(e.target)) {
                     navLinksContainer.classList.remove('active');
                     document.body.classList.remove('no-scroll');
-                    toggle.querySelector('i').classList.replace('fa-times', 'fa-bars');
+                    toggle.classList.remove('active');
                 }
             }
         });
@@ -817,4 +819,8 @@ async function initFacilityGallery() {
         else if (wrapper && wrapper.classList.contains('gallery-mode')) startAuto();
     });
 }
+
+
+/* --- Theme Toggle Logic --- */
+
 
