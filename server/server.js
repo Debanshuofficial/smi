@@ -152,4 +152,5 @@ app.get('/api/birthdays', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
+    console.log(`API accessible at http://smi.hsvikrant.dpdns.org:${port}`);
 });

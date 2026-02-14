@@ -302,7 +302,18 @@
                             </li>
                             <li><i class="fa-solid fa-check" style="color: var(--secondary-accent);"></i> Co-Educational
                             </li>
-                            <li><i class="fa-solid fa-check" style="color: var(--secondary-accent);"></i> WBBSE & WBCHSE
+                            <li><i class="fa-solid fa-check" style="color: var(--secondary-accent);"></i> WBBPE & WBBSE
+                            </li>
+                            <li><i class="fa-solid fa-check" style="color: var(--secondary-accent);"></i> 24/7 CCTV
+                                Surveillance</li>
+                            <li><i class="fa-solid fa-check" style="color: var(--secondary-accent);"></i> Transport
+                                Vehicles
+                            </li>
+                            <li><i class="fa-solid fa-check" style="color: var(--secondary-accent);"></i> Regular
+                                Parent-Teacher Meeting
+                            </li>
+                            <li><i class="fa-solid fa-check" style="color: var(--secondary-accent);"></i> App Support
+                                for Parents.
                             </li>
                         </ul>
                     </div>
@@ -739,7 +750,7 @@
                             <p><i class="fa-solid fa-envelope"></i> care.sureshmemorial2000@gmail.com</p>
                             <div style="margin-top: 1rem; opacity: 0.7;">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14736.35634599252!2d88.363895!3d22.572646!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a02767858c80521%3A0x6b45a6c0e5a6669!2sKolkata%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1645000000000!5m2!1sen!2sin"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3661.1971085097866!2d88.69381487440238!3d23.417245878899166!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f92985b901326b%3A0x2abefc29bb180482!2sSuresh%20Memorial%20Institute%2C%20Krishnaganj%2CNadia!5e0!3m2!1sen!2sin!4v1771048874318!5m2!1sen!2sin"
                                     width="100%" height="200" style="border:0; border-radius: 8px;" allowfullscreen=""
                                     loading="lazy"></iframe>
                             </div>
@@ -837,8 +848,21 @@
     </div>
 
     <!-- Scripts -->
-    <script src="assets/js/config.js" defer></script>
-    <script src="assets/js/script.js" defer></script>
+    <script>
+        // Force unregister any existing service workers that might be causing cache issues
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('Service Worker unregistered');
+                }
+            }).catch(function (err) {
+                console.log('Service Worker unregistration failed: ', err);
+            });
+        }
+    </script>
+    <script src="assets/js/config.js?v=1.0.3" defer></script>
+    <script src="assets/js/script.js?v=1.0.3" defer></script>
 </body>
 
 </html>

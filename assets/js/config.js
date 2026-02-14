@@ -1,16 +1,11 @@
 // API Configuration
 const CONFIG = {
-    // Dynamic BASE_URL: Automatically switches between localhost and LAN IP for mobile testing
-    BASE_URL: (function () {
-        const host = window.location.hostname;
-        // If we're on localhost, use localhost:4000
-        if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:4000';
-        // If we're on a LAN IP (e.g. 192.168.x.x), use that IP with port 4000
-        return `http://${host}:4000`;
-    })(),
+    // URL of the backend server (where the 'server' folder is hosted)
+    // Replace with your actual backend URL: e.g., 'https://smi-api.yourdomain.com'
+    API_SERVER_URL: 'https://smi.hsvikrant.dpdns.org',
 
-    get API_BASE() { return `${this.BASE_URL}/api`; },
-    get IMG_BASE() { return `${this.BASE_URL}/images/`; },
+    get API_BASE() { return `${this.API_SERVER_URL}/api`; },
+    get IMG_BASE() { return `${this.API_SERVER_URL}/images/`; },
 
     // Static Images (Placeholders/Fallbacks)
     STATIC_IMAGES: {
@@ -43,6 +38,8 @@ const CONFIG = {
     getImageUrl(path) {
         if (!path) return this.STATIC_IMAGES.PLACEHOLDER;
         if (path.startsWith('http') || path.startsWith('data:')) return path;
+
+        // If it's a relative path from the database, it points to the backend server's images
         return this.IMG_BASE + path;
     },
 

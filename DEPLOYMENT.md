@@ -1,40 +1,38 @@
-# SMI Website - Production Ready
+# SMI Website - Deployment Guide
 
-## Deployed URLs
-- Frontend: http://localhost:5500
-- Backend API: http://localhost:4000
+This project is optimized for deployment where the frontend and backend are hosted on separate environments.
 
-## File Structure Optimizations
-✅ **Consolidated JavaScript Files:**
-  - `config.js` - Centralized API endpoints and image URL management
-  - `script.js` - All data loading (slider, notices, staff, toppers, birthdays, facilities)
-  - Removed: `staff_loader.js` (merged into script.js)
+## Architecture
+- **Backend (API & Database)**: Hosted at `https://smi.hsvikrant.dpdns.org`
+- **Frontend (Web Application)**: Hosted on your primary web server.
 
-## Performance Optimizations
-✅ Conditional infinite scroll (3+ items)
-✅ Card loading animations
-✅ Hover borders (top, left, bottom)
-✅ Scroll performance (backdrop-filter reduced, will-change, translateZ)
-✅ Loading screen with pulsing logo
-✅ Image lazy loading optimizations
-✅ Preload critical assets (CSS, fonts, logo)
-✅ Removed unnecessary duplicate files
+## 1. Backend Deployment
+1.  Upload the `server` folder to your backend server.
+2.  Install dependencies: `npm install`
+3.  Start the server: `node server.js`
+4.  The server provides:
+    -   API endpoints at `/api/*`
+    -   Static image delivery at `/images/*`
 
-## Run Instructions
-```bash
-# Terminal 1 - Backend
-cd server
-node server.js
+## 2. Frontend Deployment
+1.  Configure `assets/js/config.js` with your backend URL:
+    ```javascript
+    API_SERVER_URL: 'https://smi.hsvikrant.dpdns.org'
+    ```
+2.  Upload the root directory contents (excluding the `server` folder) to your web server.
+3.  Ensure the following files/folders are included:
+    -   `index.html`
+    -   `assets/` (which includes your JS and CSS)
+    -   `logo.png` and other static images.
 
-# Terminal 2 - Frontend
-node frontend_server.js
-```
+## Performance & Optimization Features
+- ✅ **Centralized Config**: Change the database connection in one place (`config.js`).
+- ✅ **Cross-Origin Ready**: Backend server has CORS enabled for separate domain hosting.
+- ✅ **Optimized Loading**: Lazy loading, preloads, and conditional infinite scrolls are active.
+- ✅ **Automatic Fault Tolerance**: Fallback images and error handling for missing assets.
 
-## Configuration
-- All API URLs managed in: `assets/js/config.js`
-- Easy to update for production deployment
-- Single source of truth for endpoints
-
-## Database
-- Location: `server/smi.db`
-- Populated with staff (DD/MM/YYYY format), notices, assets, students, toppers
+## Local Development (Failsafe)
+To run locally for testing:
+1.  Start backend: `cd server && node server.js`
+2.  Start frontend: `node frontend_server.js` (or use VS Code Live Server)
+3.  Update `config.js` `API_SERVER_URL` to `http://localhost:4000` temporarily.

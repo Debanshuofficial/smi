@@ -1,57 +1,56 @@
 # Configuration Guide
 
-## Static Images Configuration
+This guide explains how to configure the Suresh Memorial Institute project for hosting across different servers.
 
-The `config.js` file now includes static image paths for placeholders and fallbacks:
+## Server Separation
+
+The project is designed to be hosted on two distinct servers:
+1.  **Backend Server**: Hosts the `server` folder, the SQLite database, and images.
+2.  **Frontend Server**: Hosts the HTML, CSS, and client-side JavaScript files.
+
+## 1. Backend Configuration (API & Images)
+
+The backend server details are managed in `assets/js/config.js`.
+
+### API_SERVER_URL
+This is the single variable used to attach the frontend to your database. It defines where the API and images are located.
 
 ```javascript
-STATIC_IMAGES: {
-    PLACEHOLDER: 'assets/img/placeholder.jpg',  // Generic placeholder
-    LOGO: 'logo.png',                            // Institute logo
-    DEFAULT_PROFILE: 'assets/img/default-profile.png', // Default profile pic
-    NO_IMAGE: 'data:image/svg+xml,...'           // SVG fallback when no image
+const CONFIG = {
+    // The URL of your remote backend server
+    API_SERVER_URL: 'https://smi.hsvikrant.dpdns.org',
+    
+    // Derived paths (do not change unless server structure changes)
+    get API_BASE() { return `${this.API_SERVER_URL}/api`; },
+    get IMG_BASE() { return `${this.API_SERVER_URL}/images/`; },
 }
 ```
 
-## Usage Examples
+## 2. Image Handling
 
-### Get Image from Database
+### Remote Images (from Database)
+Images stored in the database are served from the **Backend Server**. Use the helper function to get the full URL:
 ```javascript
-const staffImg = CONFIG.getImageUrl(staff.img);
-// Returns: http://localhost:4000/images/staffs/img1.jpg
+const imageUrl = CONFIG.getImageUrl(item.img); 
+// Results in: https://smi.hsvikrant.dpdns.org/images/your-image.jpg
 ```
 
-### Get Static/Placeholder Image
+### Static Assets (Local)
+Logos and theme-related icons are stored locally on the **Frontend Server**.
 ```javascript
-const placeholder = CONFIG.getStaticImage('placeholder');
-// Returns: assets/img/placeholder.jpg
-
 const logo = CONFIG.getStaticImage('logo');
-// Returns: logo.png
+// Results in: logo.png (relative to the frontend root)
 ```
 
-### In HTML
-```html
-<img src="${CONFIG.getImageUrl(item.img)}" 
-     onerror="this.src='${CONFIG.getStaticImage('placeholder')}'">
-```
-
-## Deployment & Mobile Testing
-
-The `config.js` now features **Automatic IP Detection**:
-
+## 3. Dynamic Endpoints
+All data fetches automatically use the `API_SERVER_URL`. To get a new endpoint:
 ```javascript
-BASE_URL: (function() {
-    const host = window.location.hostname;
-    if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:4000';
-    return `http://${host}:4000`; // Dynamically uses your LAN IP
-})(),
+const url = CONFIG.getEndpoint('staff'); 
+// Results in: https://smi.hsvikrant.dpdns.org/api/staff
 ```
 
-### How to test on Mobile:
-1.  Connect your phone to the **same Wi-Fi** as your computer.
-2.  Find your computer's IP (e.g., `192.168.0.193`).
-3.  Open the website on your phone using: `http://192.168.0.193:5500`
-4.  The website will **automatically** try to reach the database at `http://192.168.0.193:4000`.
+---
 
-**Note:** If it still doesn't load on mobile, you may need to **allow Port 4000** through your Windows Firewall.
+## Deployment Summary
+- **Backend**: Upload the `server` folder to your server pointing at `https://smi.hsvikrant.dpdns.org`. Ensure CORS is enabled (already configured in `server.js`).
+- **Frontend**: Upload everything else (index.html, assets/, etc.) to your web hosting. No changes are needed to the HTML files if `config.js` is correct.
