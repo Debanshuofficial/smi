@@ -1,4 +1,4 @@
-/* CSS Variables - Dark Theme Restored & Optimized */
+﻿/* CSS Variables - Dark Theme Restored & Optimized */
 :root {
     --bg-dark: #0f172a;
     --bg-darker: #020617;
@@ -15,7 +15,7 @@
     /* Emerald */
     --warning-accent: #fbbf24;
     /* Amber */
-    --danger-accent: #f87171;
+    --danger-accent: #20aae1;
     /* Red */
 
     --text-main: #f8fafc;
@@ -48,6 +48,7 @@ body {
     max-width: 100%;
     scrollbar-width: thin;
     scrollbar-color: var(--primary-accent) var(--bg-dark);
+    scroll-behavior: smooth;
 }
 
 /* Custom Scrollbar */
@@ -70,7 +71,7 @@ body {
     background-image:
         radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
         radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(201, 75, 16, 0.653) 0, transparent 50%);
+        radial-gradient(at 100% 0%, rgba(56, 189, 248, 0.45) 0, transparent 50%);
     background-attachment: fixed;
     color: var(--text-main);
     font-family: var(--font-body);
@@ -78,9 +79,6 @@ body {
     line-height: 1.6;
 }
 
-body.no-scroll {
-    overflow: hidden !important;
-}
 
 /* Utilities */
 .container {
@@ -103,29 +101,30 @@ body.no-scroll {
 .glass-footer,
 .glass-strip {
     background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--glass-border);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     color: var(--text-main);
+    transform: translateZ(0);
 }
 
 .glass-card {
     border-radius: 12px;
     padding: 1.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
     margin-bottom: 1.5rem;
-    /* Uniform Theme Enforced */
     background: var(--card-bg) !important;
-    border-top: none !important;
+    will-change: transform;
+    contain: layout style paint;
+    border: 1.5px solid rgba(56, 189, 248, 0.7) !important;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), 0 8px 32px rgba(0, 0, 0, 0.4);
+    animation: cardFadeIn 0.8s ease-out forwards;
 }
 
-.glass-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(56, 189, 248, 0.15);
-    border-color: var(--primary-accent);
-    border-top: 3px solid var(--primary-accent);
-}
+
+
+
 
 .view-facility-btn {
     margin-top: 1.5rem !important;
@@ -158,11 +157,13 @@ body.no-scroll {
     flex-direction: column;
 }
 
+/* Consolidating noticeboard styles */
 .notice-list-container {
+    max-height: 380px;
     overflow-y: auto;
-    flex-grow: 1;
-    padding-right: 5px;
-    /* Space for scrollbar */
+    padding-right: 0.8rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-accent) transparent;
 }
 
 /* Header */
@@ -710,8 +711,8 @@ li {
 }
 
 .leaderboard-img {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 12px;
     object-fit: cover;
     border: 2px solid var(--glass-border);
@@ -752,8 +753,8 @@ li {
 /* CSS removed to keep things clean */
 
 .birthday-img {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 12px;
     object-fit: cover;
     border: 2px solid var(--warning-accent);
@@ -822,16 +823,62 @@ li {
     }
 }
 
+/* Card Loading Animation */
+.leaderboard-item,
+.birthday-card-item,
+.staff-card,
+.notice-board li {
+    animation: cardFadeIn 0.4s ease forwards;
+    opacity: 0;
+}
+
+.leaderboard-item:nth-child(1),
+.birthday-card-item:nth-child(1),
+.staff-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.leaderboard-item:nth-child(2),
+.birthday-card-item:nth-child(2),
+.staff-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.leaderboard-item:nth-child(3),
+.birthday-card-item:nth-child(3),
+.staff-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.leaderboard-item:nth-child(4),
+.birthday-card-item:nth-child(4),
+.staff-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Decoration for Celebration */
 .birthday-card-item::after {
     content: '🎉';
     position: absolute;
-    right: 10px;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 1.5rem;
-    opacity: 0.4;
-    animation: bounce 1s infinite alternate;
+    font-size: 1.8rem;
+    opacity: 1;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+    animation: bounce 0.8s infinite alternate ease-in-out;
 }
 
 @keyframes bounce {
@@ -863,9 +910,8 @@ li {
     box-shadow: 0 0 12px 2px rgba(255, 255, 255, 0.9);
 }
 
+/* Notice board improvements */
 .notice-list-container {
-    max-height: 300px;
-    overflow-y: auto;
     padding-right: 0.5rem;
 }
 
@@ -883,34 +929,226 @@ li {
 }
 
 .notice-list li {
-    transition: background 0.2s ease;
-    padding: 1rem;
-    border-radius: 8px;
+    transition: background 0.3s ease, transform 0.2s ease;
+    padding: 0;
+    border-radius: 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    gap: 1rem;
+    display: block;
+    overflow: hidden;
+    margin-bottom: 0.8rem;
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .notice-list li:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.notice-item-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+    position: relative;
+    width: 100%;
 }
 
 .notice-list li .date {
-    background: var(--glass-bg);
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    color: var(--secondary-accent);
-    align-self: flex-start;
+    background: rgba(56, 189, 248, 0.15);
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--primary-accent);
+    font-weight: 700;
+    text-align: center;
+    min-width: 55px;
+    line-height: 1.2;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    flex-shrink: 0;
 }
 
-.highlight-content img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+.notice-main-content {
+    flex-grow: 1;
+}
+
+.notice-main-content strong {
+    display: block;
+    color: var(--text-main);
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+}
+
+.notice-main-content p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notice-download-btn {
+    background: var(--primary-accent);
+    color: #000 !important;
+    padding: 0.6rem 1rem;
     border-radius: 8px;
-    margin-bottom: 1rem;
-    border: 1px solid var(--glass-border);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.notice-download-btn:hover {
+    background: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+}
+
+.notice-download-btn i {
+    font-size: 1rem;
+}
+
+/* Today's Highlight Image - 16:9 Aspect Ratio */
+.todays-highlight .highlight-content img {
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Grids - Explicit Desktop 3-Column for Staff/Facilities */
+.celebration-grid,
+.facilities-grid,
+#facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+#facilities-grid {
+    counter-reset: facility-counter;
+}
+
+.facility-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3.5rem 2rem 2.5rem !important;
+    text-align: center;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    background: rgba(15, 23, 42, 0.4) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 24px !important;
+    cursor: pointer;
+    counter-increment: facility-counter;
+}
+
+/* Background Number Indicator */
+.facility-card::after {
+    content: "0" counter(facility-counter);
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 4rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.03);
+    font-family: var(--font-body);
+    pointer-events: none;
+    transition: all 0.5s ease;
+}
+
+.facility-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    background: rgba(30, 41, 59, 0.6) !important;
+    border-color: rgba(56, 189, 248, 0.4) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(56, 189, 248, 0.1);
+}
+
+.facility-card:hover::after {
+    color: rgba(56, 189, 248, 0.05);
+    transform: translateY(10px);
+}
+
+/* Floating Icon Styling */
+.facility-card i {
+    font-size: 4rem !important;
+    margin-bottom: 2rem !important;
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.5));
+    position: relative;
+    z-index: 2;
+}
+
+.facility-card:hover i {
+    transform: translateY(-10px) rotate(5deg) scale(1.1);
+    filter: drop-shadow(0 15px 25px currentColor);
+}
+
+/* Modern Typography */
+.facility-card h3 {
+    font-size: 1.7rem !important;
+    margin-bottom: 1rem !important;
+    color: #fff !important;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 2;
+}
+
+.facility-card p {
+    font-size: 0.95rem !important;
+    color: var(--text-muted) !important;
+    margin-bottom: 2.5rem !important;
+    line-height: 1.7 !important;
+    max-width: 260px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.facility-card:hover p {
+    opacity: 1;
+}
+
+/* Shining Bubble Button Design - Refined & Smaller */
+.facility-card .view-facility-btn {
+    position: relative;
+    margin-top: auto !important;
+    padding: 0.5rem 1.4rem !important;
+    /* Smaller padding */
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.65rem !important;
+    /* Smaller font */
+    border-radius: 50px !important;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.7), rgba(56, 189, 248, 0.3)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 6px 15px rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.facility-card:hover .view-facility-btn {
+    transform: translateY(-5px) scale(1.05);
+    background: var(--primary-accent) !important;
+    box-shadow: 0 15px 30px rgba(56, 189, 248, 0.5), 0 0 20px rgba(56, 189, 248, 0.3);
+    border-color: rgba(255, 255, 255, 0.6) !important;
 }
 
 /* Footer Enhancements */
@@ -1056,6 +1294,12 @@ li {
         -webkit-backdrop-filter: none !important;
     }
 
+    .mobile-menu-toggle i {
+        font-size: 1.5rem;
+        color: var(--primary-accent);
+        transition: none !important;
+        transform: none !important;
+    }
 
     .nav-links {
         position: fixed;
@@ -1069,7 +1313,7 @@ li {
         flex-direction: column;
         gap: 0;
         padding: 0px 0 20px 0;
-        z-index: 00000;
+        z-index: 10000;
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1315,21 +1559,29 @@ li {
     }
 
     .notice-list-container {
-        max-height: 220px;
-        overflow-y: auto;
+        max-height: 250px;
+        padding-right: 0.4rem;
     }
 
-    .notice-list li {
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 0.7rem;
-        font-size: 0.85rem;
-        min-height: auto;
+    .notice-item-wrapper {
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 0.8rem;
     }
 
-    .notice-list li .date {
-        align-self: flex-start;
-        font-size: 0.7rem;
+    .notice-download-btn {
+        padding: 0.5rem;
+    }
+
+    .notice-download-btn .download-text {
+        display: none;
+    }
+
+    .notice-download-btn {
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+        border-radius: 50%;
     }
 
     /* Leaderboard Card */
@@ -1350,8 +1602,8 @@ li {
     }
 
     .leaderboard-img {
-        width: 55px;
-        height: 55px;
+        width: 65px;
+        height: 65px;
     }
 
     /* Birthday Card */
@@ -1361,19 +1613,18 @@ li {
     }
 
     .birthday-container {
-        max-height: 320px;
+        max-height: 420px;
         overflow: hidden;
     }
 
     .birthday-card-item {
-        padding: 0.7rem;
-        font-size: 0.9rem;
-        min-height: auto;
+        padding: 0.8rem;
+        gap: 0.8rem;
     }
 
     .birthday-img {
-        width: 55px;
-        height: 55px;
+        width: 65px;
+        height: 65px;
     }
 
     /* Counter Card - INCREASE */
@@ -1565,8 +1816,6 @@ li {
 
     /* Fix potential grid overflows */
     .home-layout-grid,
-    .celebration-grid,
-    .facilities-grid,
     .dashboard-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -1619,8 +1868,22 @@ li {
     }
 
     .social-bubble-bar {
-        padding: 0.5rem 1rem !important;
-        gap: 1rem !important;
+        padding: 0.6rem 1.2rem !important;
+        gap: 2rem !important;
+        width: auto !important;
+        margin: 0 auto !important;
+    }
+
+    .footer-col {
+        text-align: center !important;
+        padding: 0.5rem 0;
+    }
+
+    .footer-col ul {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
     }
 
     .social-icon {
@@ -1640,36 +1903,96 @@ li {
     .section-gap {
         padding: 2rem 0;
     }
-}
 
-/* Grids - Explicit Desktop 3-Column for Staff/Facilities */
-.celebration-grid,
-.facilities-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-}
 
-/* Tab Content Glass Styling */
-#syllabus,
-#papers,
-#elearning,
-#fees {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
-    padding: 2rem;
-    margin-top: 1rem;
-    color: var(--text-main);
+
+    @media (max-width: 768px) {
+
+        .celebration-grid,
+        .facilities-grid,
+        #facilities-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .facility-card {
+            padding: 2.5rem 1.2rem 1.8rem !important;
+            border-radius: 18px !important;
+        }
+
+        .facility-card i {
+            font-size: 2.8rem !important;
+            margin-bottom: 1.2rem !important;
+        }
+
+        .facility-card h3 {
+            font-size: 1.2rem !important;
+            margin-bottom: 0.8rem !important;
+        }
+
+        .facility-card p {
+            font-size: 0.85rem !important;
+            margin-bottom: 1.5rem !important;
+            line-height: 1.5 !important;
+        }
+
+        .facility-card::after {
+            font-size: 3rem;
+            top: 5px;
+            right: 15px;
+        }
+
+        .facility-card .view-facility-btn {
+            padding: 0.4rem 1rem !important;
+            font-size: 0.6rem !important;
+            letter-spacing: 1.2px;
+            border-radius: 50px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .celebration-grid,
+        .facilities-grid,
+        #facilities-grid {
+            gap: 0.8rem;
+        }
+
+        .facility-card {
+            padding: 2rem 1rem 1.5rem !important;
+        }
+
+        .facility-card i {
+            font-size: 2.5rem !important;
+        }
+
+        .facility-card h3 {
+            font-size: 1.1rem !important;
+        }
+    }
+
+    /* Tab Content Glass Styling */
+    #syllabus,
+    #papers,
+    #elearning,
+    #fees {
+        background: var(--card-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-top: 1rem;
+        color: var(--text-main);
+    }
 }
 
 @media (max-width: 768px) {
+    .counter-card {
+        flex-wrap: wrap;
+    }
 
-    .celebration-grid,
-    .facilities-grid,
     .footer-grid {
         grid-template-columns: 1fr;
     }
@@ -2178,5 +2501,128 @@ li {
     .gallery-content-overlay p {
         display: none !important;
         /* Remove detailed text for mobile */
+    }
+}
+
+/* Image Performance Optimizations - Fixed Scroll Flicker */
+img {
+    /* Better defaults for smooth scrolling */
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.staff-img,
+.leaderboard-img,
+.birthday-img,
+.principal-img,
+.site-logo,
+.glass-card,
+.facility-card {
+    /* Prevent "CRT/Line" loading effects by forcing hardware acceleration */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+/* Floating Message Box */
+.floating-msg-box {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(220, 38, 38, 0.9);
+    /* Vibrant Danger Red */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.4);
+    color: white;
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: default;
+    pointer-events: none;
+    opacity: 0;
+    white-space: nowrap;
+}
+
+.floating-msg-box.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.floating-msg-box i {
+    font-size: 1.2rem;
+    animation: error-icon-pulse 1s infinite alternate;
+}
+
+@keyframes error-icon-pulse {
+    from {
+        transform: scale(1);
+        filter: drop-shadow(0 0 2px white);
+    }
+
+    to {
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 8px white);
+    }
+}
+
+@media (max-width: 480px) {
+    .floating-msg-box {
+        bottom: 1rem;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+        gap: 8px;
+    }
+}
+
+/* Topper Card - Slow & Frequent Cinematic Shine */
+.leaderboard-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.leaderboard-card::after {
+    content: '';
+    position: absolute;
+    top: -150%;
+    left: -150%;
+    width: 80%;
+    height: 400%;
+    background: linear-gradient(to right,
+            transparent,
+            rgba(255, 255, 255, 0.03) 0%,
+            rgba(255, 255, 255, 0.12) 50%,
+            rgba(255, 255, 255, 0.03) 100%,
+            transparent);
+    transform: rotate(35deg);
+    animation: slow-frequent-shine 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+    z-index: 5;
+}
+
+@keyframes slow-frequent-shine {
+    0% {
+        top: -150%;
+        left: -150%;
+    }
+
+    80% {
+        top: 50%;
+        left: 150%;
+    }
+
+    100% {
+        top: 50%;
+        left: 150%;
     }
 }
