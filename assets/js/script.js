@@ -18,7 +18,7 @@ async function fetchData(endpoint, returnFull = false) {
         const result = await response.json();
         return returnFull ? result : (result.data || []);
     } catch (error) {
-        console.error(`Error fetching ${endpoint}:`, error);
+        // console.error(`Error fetching ${endpoint}:`, error);
         // Show floating message box for any fetch/network/server errors
         showDatabaseError();
         return returnFull ? { data: [] } : [];
@@ -41,38 +41,47 @@ async function loadStaffData() {
             renderStaff(staffList);
         }
     } catch (error) {
-        console.error('Error loading staff:', error);
+        // console.error('Error loading staff:', error);
     }
 }
 
 function renderStaff(staffList) {
-    const teachingContainer = document.getElementById('teaching-staff-grid');
-    const nonTeachingContainer = document.getElementById('non-teaching-staff-grid');
-    const adminContainer = document.getElementById('admin-staff-grid');
-    const bodContainer = document.getElementById('bod-staff-grid');
-
-    if (teachingContainer) teachingContainer.innerHTML = '';
-    if (nonTeachingContainer) nonTeachingContainer.innerHTML = '';
-    if (adminContainer) adminContainer.innerHTML = '';
-    if (bodContainer) bodContainer.innerHTML = '';
+    const teachingFragment = document.createDocumentFragment();
+    const nonTeachingFragment = document.createDocumentFragment();
+    const adminFragment = document.createDocumentFragment();
+    const bodFragment = document.createDocumentFragment();
 
     staffList.forEach(staff => {
         const role = staff.role.toLowerCase();
         const imgSrc = CONFIG.getImageUrl(staff.img);
 
         if (role === 'ts') {
-            createStaffCard(staff, teachingContainer, imgSrc);
+            createStaffCard(staff, teachingFragment, imgSrc);
         } else if (role === 'nts') {
-            createStaffCard(staff, nonTeachingContainer, imgSrc, 'secondary');
+            createStaffCard(staff, nonTeachingFragment, imgSrc, 'secondary');
         } else if (role === 'adm') {
-            createStaffCard(staff, adminContainer, imgSrc, 'neutral');
+            createStaffCard(staff, adminFragment, imgSrc, 'neutral');
         } else if (role === 'bod') {
-            createStaffCard(staff, bodContainer, imgSrc);
+            createStaffCard(staff, bodFragment, imgSrc);
         } else if (role === 'p') {
+            // Direct update is fine for single elements
             updatePrincipal(staff, imgSrc);
         } else if (role === 'f') {
             updateFounder(staff, imgSrc);
         }
+    });
+
+    const teachingContainer = document.getElementById('teaching-staff-grid');
+    const nonTeachingContainer = document.getElementById('non-teaching-staff-grid');
+    const adminContainer = document.getElementById('admin-staff-grid');
+    const bodContainer = document.getElementById('bod-staff-grid');
+
+    // Batch update via requestAnimationFrame to sync with render cycle
+    requestAnimationFrame(() => {
+        if (teachingContainer) { teachingContainer.innerHTML = ''; teachingContainer.appendChild(teachingFragment); }
+        if (nonTeachingContainer) { nonTeachingContainer.innerHTML = ''; nonTeachingContainer.appendChild(nonTeachingFragment); }
+        if (adminContainer) { adminContainer.innerHTML = ''; adminContainer.appendChild(adminFragment); }
+        if (bodContainer) { bodContainer.innerHTML = ''; bodContainer.appendChild(bodFragment); }
     });
 }
 
@@ -141,52 +150,68 @@ function initStaticImages() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    try { initClock(); } catch (e) { console.error("Clock Error:", e); }
-    try { initDayStatus(); } catch (e) { console.error("Day Status Error:", e); }
-    try { initNavigation(); } catch (e) { console.error("Nav Error:", e); }
-    try { initStaticImages(); } catch (e) { console.error("Static Img Error:", e); }
+    try { initClock(); } catch (e) { /* console.error("Clock Error:", e); */ }
+    try { initDayStatus(); } catch (e) { /* console.error("Day Status Error:", e); */ }
+    try { initNavigation(); } catch (e) { /* console.error("Nav Error:", e); */ }
+    try { initStaticImages(); } catch (e) { /* console.error("Static Img Error:", e); */ }
     // Theme is now handled by theme.js but called here to ensure order if bundled. 
     // Assuming initTheme is globally available or imported.
     if (typeof initTheme === 'function') {
-        try { initTheme(); } catch (e) { console.error("Theme Error:", e); }
+        try { initTheme(); } catch (e) { /* console.error("Theme Error:", e); */ }
     }
 
     // Async Data Loading
     (async () => {
-        try { await initSlider(); } catch (e) { console.error("Slider Error:", e); }
-        try { await loadRealData(); } catch (e) { console.error("Data Load Error:", e); }
-        try { await loadStaffData(); } catch (e) { console.error("Staff Load Error:", e); }
-        try { await initFacilityGallery(); } catch (e) { console.error("Gallery Error:", e); }
+        try { await initSlider(); } catch (e) { /* console.error("Slider Error:", e); */ }
+        try { await loadRealData(); } catch (e) { /* console.error("Data Load Error:", e); */ }
+        try { await loadStaffData(); } catch (e) { /* console.error("Staff Load Error:", e); */ }
+        try { await initFacilityGallery(); } catch (e) { /* console.error("Gallery Error:", e); */ }
 
         // Hide loading screen after data loads
         setTimeout(() => {
             const loadingScreen = document.getElementById('loading-screen');
             if (loadingScreen) {
                 loadingScreen.classList.add('hidden');
+                loadingScreen.classList.add('initial-done'); // Hide spinner for future tab switches
             }
         }, 500);
     })();
 
-    try { initCounters(); } catch (e) { console.error("Counter Error:", e); }
-    try { initAcademicProgress(); } catch (e) { console.error("Progress Error:", e); }
-    try { initImageErrorHandling(); } catch (e) { console.error("Img Error Handler Error:", e); }
+    try { initCounters(); } catch (e) { /* console.error("Counter Error:", e); */ }
+    try { initAcademicProgress(); } catch (e) { /* console.error("Progress Error:", e); */ }
+    try { initImageErrorHandling(); } catch (e) { /* console.error("Img Error Handler Error:", e); */ }
 
-    // Failsafe: Remove any remaining spinners after 2 seconds
+    // Failsafe: Remove any remaining spinners after 8 seconds
     setTimeout(() => {
-        const spinners = document.querySelectorAll('.loading-spinner');
-        spinners.forEach(s => {
-            s.style.display = 'none';
-            if (s.parentElement.innerText.trim() === '') {
-                s.parentElement.innerHTML = '<p class="text-muted">Content unavailable (Timeout)</p>';
+        // Targeted selector to avoid replacing the global loading screen spinner
+        const targetSpinners = document.querySelectorAll('main .loading-spinner, .tab-content .loading-spinner, .notice-board .loading-spinner');
+        targetSpinners.forEach(s => {
+            // Only replace if the parent is still empty (meaning data never arrived)
+            if (s.parentElement && s.parentElement.innerText.trim() === '') {
+                s.style.display = 'none';
+                s.parentElement.innerHTML = `
+                    <div class="timeout-msg" style="text-align:center; padding:1rem; color:var(--text-muted); font-size:0.9rem;">
+                        <i class="fa-solid fa-circle-exclamation" style="margin-bottom:0.5rem; display:block; font-size:1.2rem; color:var(--warning-accent);"></i>
+                        Content is taking longer than usual to load.<br>
+                        <a href="javascript:location.reload()" style="color:var(--primary-accent); text-decoration:none; font-weight:bold;">Click here to retry</a>
+                    </div>`;
+            } else {
+                s.style.display = 'none';
             }
         });
 
         // Failsafe for ticker
         const ticker = document.getElementById('status-ticker');
         if (ticker && ticker.textContent.includes("Loading")) {
-            ticker.textContent = "Welcome to Suresh Memorial Institute! (Data Loading...)";
+            ticker.textContent = "Welcome to Suresh Memorial Institute! (Connecting to Server...)";
         }
-    }, 4000); // Increased timeout for fetch
+
+        // Final fallback: hide loading screen if it's still stuck after 10 seconds
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+            loadingScreen.classList.add('hidden');
+        }
+    }, 8000);
 
     // CRITICAL: Force scroll to top after ALL initializations are done
     if ('scrollRestoration' in history) {
@@ -301,55 +326,91 @@ function initNavigation() {
     const navLinksContainer = document.querySelector('.nav-links');
     const links = document.querySelectorAll('.nav-links a');
     const sections = document.querySelectorAll('main section');
+    const loadingScreen = document.getElementById('loading-screen');
 
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
     function showSection(targetId, isInitial = false) {
         const id = targetId.replace('#', '');
-        sections.forEach(sec => {
-            sec.style.display = 'none';
-            sec.classList.remove('active-section');
-        });
         const targetSection = document.getElementById(id);
-        if (targetSection) {
-            targetSection.style.display = 'block';
-            setTimeout(() => targetSection.classList.add('active-section'), 10);
-            if (!isInitial) window.scrollTo(0, 0);
+        if (!targetSection) return;
+
+        // For non-initial navigation, show the loading screen
+        if (!isInitial && loadingScreen) {
+            loadingScreen.classList.remove('hidden');
         }
-        links.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + id) link.classList.add('active');
-        });
-        if (isInitial && id === 'home' && !window.location.hash) return;
+
+        // Logic to perform the actual switch
+        const performSwitch = () => {
+            sections.forEach(sec => {
+                sec.style.display = 'none';
+                sec.classList.remove('active-section');
+            });
+
+            targetSection.style.display = 'block';
+            // Small delay to trigger CSS transitions if any
+            setTimeout(() => targetSection.classList.add('active-section'), 10);
+
+            if (!isInitial) window.scrollTo(0, 0);
+
+            links.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + id) link.classList.add('active');
+            });
+
+            if (!(isInitial && id === 'home' && !window.location.hash)) {
+                if (isInitial) {
+                    if (history.replaceState) history.replaceState(null, null, '#' + id);
+                } else {
+                    if (history.pushState) history.pushState(null, null, '#' + id);
+                    else location.hash = '#' + id;
+                }
+            }
+
+            // Hide the loading screen after the section is shown
+            if (!isInitial && loadingScreen) {
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                }, 300); // Slight delay for a premium feel
+            }
+        };
 
         if (isInitial) {
-            if (history.replaceState) history.replaceState(null, null, '#' + id);
+            performSwitch();
         } else {
-            if (history.pushState) history.pushState(null, null, '#' + id);
-            else location.hash = '#' + id;
+            // Simulated loading delay
+            setTimeout(performSwitch, 800);
         }
     }
+
     const initialSection = window.location.hash || '#home';
     showSection(initialSection, true);
+
     window.addEventListener('load', () => {
         if (!window.location.hash || window.location.hash === '#home') {
             window.scrollTo({ top: 0, behavior: 'instant' });
         }
     });
+
     links.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('href');
-            showSection(targetId);
-            if (window.innerWidth <= 768) {
-                navLinksContainer.classList.remove('active');
-                if (toggle) toggle.classList.remove('active');
+            if (link.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                showSection(targetId);
+                if (window.innerWidth <= 768) {
+                    navLinksContainer.classList.remove('active');
+                    if (toggle) toggle.classList.remove('active');
+                    document.body.classList.remove('no-scroll');
+                }
             }
         });
     });
+
     window.addEventListener('hashchange', () => {
         showSection(window.location.hash || '#home');
     });
+
     if (toggle) {
         toggle.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -361,6 +422,7 @@ function initNavigation() {
                 toggle.classList.remove('active');
             }
         });
+
         document.addEventListener('click', (e) => {
             if (navLinksContainer.classList.contains('active')) {
                 if (!navLinksContainer.contains(e.target) && !toggle.contains(e.target)) {
@@ -374,147 +436,119 @@ function initNavigation() {
 }
 
 window.openTab = function (evt, tabName) {
-    const tabContents = document.getElementsByClassName("tab-content");
-    for (let i = 0; i < tabContents.length; i++) {
-        tabContents[i].style.display = "none";
-        tabContents[i].classList.remove("active");
+    const loadingScreen = document.getElementById('loading-screen');
+
+    // Show loading screen for feedback
+    if (loadingScreen) {
+        loadingScreen.classList.remove('hidden');
     }
-    const tabBtns = document.getElementsByClassName("tab-btn");
-    for (let i = 0; i < tabBtns.length; i++) {
-        tabBtns[i].className = tabBtns[i].className.replace(" active", "");
-    }
-    document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
-    document.getElementById(tabName).classList.add("active");
+
+    setTimeout(() => {
+        const tabContents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < tabContents.length; i++) {
+            tabContents[i].style.display = "none";
+            tabContents[i].classList.remove("active");
+        }
+        const tabBtns = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < tabBtns.length; i++) {
+            tabBtns[i].className = tabBtns[i].className.replace(" active", "");
+        }
+
+        const targetTab = document.getElementById(tabName);
+        if (targetTab) {
+            targetTab.style.display = "block";
+            targetTab.classList.add("active");
+        }
+
+        if (evt.currentTarget) {
+            evt.currentTarget.className += " active";
+        }
+
+        // Hide loading screen after switch
+        if (loadingScreen) {
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+            }, 200);
+        }
+    }, 400); // Slightly faster for sub-tabs but still provides the 'loading' feel
 }
 
-/* --- Real Data Loader --- */
+/* --- Real Data Loader (Optimized) --- */
 async function loadRealData() {
+    // Parallel Fetching
+    const [toppers, bdayResult, notices] = await Promise.all([
+        fetchData('toppers'),
+        fetchData('birthdays', true),
+        fetchData('notices')
+    ]);
+
     // 1. Toppers
-    const toppers = await fetchData('toppers');
     const leaderboardList = document.getElementById('leaderboard-list');
     if (leaderboardList) {
-        leaderboardList.innerHTML = '';
         if (toppers.length === 0) {
             leaderboardList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">No data available.</p>';
         } else {
+            const createItemHTML = (student) => `
+                <div class="leaderboard-item">
+                    <div style="display:flex; align-items:center; gap:15px; width:100%;">
+                        <img src="${CONFIG.getImageUrl(student.img)}" alt="${student.name}" class="leaderboard-img" width="70" height="70" loading="lazy" decoding="async">
+                        <div style="flex-grow:1;">
+                            <strong style="color:var(--text-main); display:block; font-size:1rem;">${student.name}</strong>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">Class: ${student.class}</div>
+                        </div>
+                        <div class="rank-badge">${student.position}</div>
+                    </div>
+                </div>`;
+
+            let html = '';
             // Use infinite scroll if more than 3 items
             if (toppers.length > 3) {
-                const scrollWrapper = document.createElement('div');
-                scrollWrapper.className = 'scroll-wrapper';
                 const displayList = [...toppers, ...toppers]; // Duplicate for seamless scroll
-
-                displayList.forEach(student => {
-                    const item = document.createElement('div');
-                    item.className = 'leaderboard-item';
-                    item.innerHTML = `
-                        <div style="display:flex; align-items:center; gap:15px; width:100%;">
-                            <img src="${CONFIG.getImageUrl(student.img)}" alt="${student.name}" class="leaderboard-img" width="70" height="70" loading="lazy" decoding="async">
-                            <div style="flex-grow:1;">
-                                <strong style="color:var(--text-main); display:block; font-size:1rem;">${student.name}</strong>
-                                <div style="font-size:0.8rem; color:var(--text-muted);">Class: ${student.class}</div>
-                            </div>
-                            <div class="rank-badge">${student.position}</div>
-                        </div>
-                    `;
-                    scrollWrapper.appendChild(item);
-                });
-                leaderboardList.appendChild(scrollWrapper);
+                html = `<div class="scroll-wrapper">${displayList.map(createItemHTML).join('')}</div>`;
             } else {
-                // Regular list without scrolling
-                toppers.forEach(student => {
-                    const item = document.createElement('div');
-                    item.className = 'leaderboard-item';
-                    item.innerHTML = `
-                        <div style="display:flex; align-items:center; gap:15px; width:100%;">
-                            <img src="${CONFIG.getImageUrl(student.img)}" alt="${student.name}" class="leaderboard-img" width="70" height="70" loading="lazy" decoding="async">
-                            <div style="flex-grow:1;">
-                                <strong style="color:var(--text-main); display:block; font-size:1rem;">${student.name}</strong>
-                                <div style="font-size:0.8rem; color:var(--text-muted);">Class: ${student.class}</div>
-                            </div>
-                            <div class="rank-badge">${student.position}</div>
-                        </div>
-                    `;
-                    leaderboardList.appendChild(item);
-                });
+                html = toppers.map(createItemHTML).join('');
             }
+            requestAnimationFrame(() => { leaderboardList.innerHTML = html; });
         }
     }
 
     // 2. Birthdays
-    const bdayResult = await fetchData('birthdays', true);
-    // Format: { type: 'today'|'upcoming', data: [...] }
     const birthdayContainer = document.getElementById('birthday-container');
     if (birthdayContainer) {
-        birthdayContainer.innerHTML = '';
         if (!bdayResult.data || bdayResult.data.length === 0) {
             birthdayContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No birthday data.</p>';
         } else {
+            let html = '';
             if (bdayResult.type === 'today') {
-                // Show Today's birthdays with conditional infinite scroll
-                if (bdayResult.data.length > 3) {
-                    const scrollWrapper = document.createElement('div');
-                    scrollWrapper.className = 'scroll-wrapper';
-                    const list = [...bdayResult.data, ...bdayResult.data];
+                const createCardHTML = (person) => `
+                    <div class="birthday-card-item skyshot-card">
+                        <img src="${CONFIG.getImageUrl(person.img)}" alt="${person.name}" class="birthday-img" width="70" height="70" loading="lazy" decoding="async" style="z-index: 2;">
+                        <div style="z-index: 2; position: relative;">
+                            <div style="color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                                Happy Birthday! <i class="fa-solid fa-cake-candles" style="color: #fff; filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #ffd700);"></i> 🎂
+                            </div>
+                            <strong style="display:block; color:var(--text-main); font-size:1.1rem;">${person.name}</strong>
+                            <div style="font-size:0.85rem; color:var(--text-muted); font-weight: 500; margin-top: 0.2rem;">
+                                ${person.role}
+                            </div>
+                        </div>
+                    </div>`;
 
-                    list.forEach(person => {
-                        const card = document.createElement('div');
-                        card.className = 'birthday-card-item skyshot-card';
-                        card.innerHTML = `
-                            <img src="${CONFIG.getImageUrl(person.img)}" alt="${person.name}" class="birthday-img" width="70" height="70" loading="lazy" decoding="async" style="z-index: 2;">
-                            <div style="z-index: 2; position: relative;">
-                                <div style="color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                                    Happy Birthday! <i class="fa-solid fa-cake-candles" style="color: #fff; filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #ffd700);"></i> 🎂
-                                </div>
-                                <strong style="display:block; color:var(--text-main); font-size:1.1rem;">${person.name}</strong>
-                                <div style="font-size:0.85rem; color:var(--text-muted); font-weight: 500; margin-top: 0.2rem;">
-                                    ${person.role}
-                                </div>
-                            </div>
-                        `;
-                        scrollWrapper.appendChild(card);
-                    });
-                    birthdayContainer.appendChild(scrollWrapper);
+                if (bdayResult.data.length > 3) {
+                    const list = [...bdayResult.data, ...bdayResult.data];
+                    html = `<div class="scroll-wrapper">${list.map(createCardHTML).join('')}</div>`;
                 } else {
-                    bdayResult.data.forEach(person => {
-                        const card = document.createElement('div');
-                        card.className = 'birthday-card-item skyshot-card';
-                        card.innerHTML = `
-                            <img src="${CONFIG.getImageUrl(person.img)}" alt="${person.name}" class="birthday-img" width="70" height="70" loading="lazy" decoding="async" style="z-index: 2;">
-                            <div style="z-index: 2; position: relative;">
-                                <div style="color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                                    Happy Birthday! <i class="fa-solid fa-cake-candles" style="color: #fff; filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #ffd700);"></i> 🎂
-                                </div>
-                                <strong style="display:block; color:var(--text-main); font-size:1.1rem;">${person.name}</strong>
-                                <div style="font-size:0.85rem; color:var(--text-muted); font-weight: 500; margin-top: 0.2rem;">
-                                    ${person.role}
-                                </div>
-                            </div>
-                        `;
-                        birthdayContainer.appendChild(card);
-                    });
+                    html = bdayResult.data.map(createCardHTML).join('');
                 }
             } else {
-                // Show upcoming
-                birthdayContainer.innerHTML = `
-                <p style="text-align:center; color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">No birthdays today.</p>
-                <div style="border-top:1px solid var(--glass-border); padding-top:0.5rem;">
-                    <h5 style="color:var(--secondary-accent); margin-bottom:0.5rem;">Upcoming Birthdays:</h5>
-                    <!-- Items inserted below -->
-                </div>
-                `;
-                const listContainer = birthdayContainer.querySelector('div'); // the div we just added
-
-                bdayResult.data.forEach(person => {
-                    const item = document.createElement('div');
-                    item.className = 'birthday-card-item';
-                    item.style.opacity = '0.9';
-                    // Parse date for display icon
+                // Upcoming
+                const listItems = bdayResult.data.map(person => {
                     let dayDisp = "??";
                     if (person.dob.includes('/')) dayDisp = person.dob.split('/')[0];
                     else if (person.dob.includes('-')) dayDisp = person.dob.split('-')[2];
 
-                    item.innerHTML = `
+                    return `
+                    <div class="birthday-card-item" style="opacity:0.9">
                          <div class="birthday-icon-wrapper" style="background:none; border:1px solid var(--glass-border);">
                             <span style="font-size:0.8rem; font-weight:bold;">${dayDisp}</span>
                         </div>
@@ -522,37 +556,36 @@ async function loadRealData() {
                             <strong style="display:block; color:var(--text-main); font-size:0.9rem;">${person.name} (${person.role})</strong>
                             <div style="font-size:0.75rem; opacity:0.8;">In ${person.daysUntil} Days</div>
                         </div>
-                    `;
-                    listContainer.appendChild(item);
-                });
+                    </div>`;
+                }).join('');
+
+                html = `
+                <p style="text-align:center; color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">No birthdays today.</p>
+                <div style="border-top:1px solid var(--glass-border); padding-top:0.5rem;">
+                    <h5 style="color:var(--secondary-accent); margin-bottom:0.5rem;">Upcoming Birthdays:</h5>
+                    ${listItems}
+                </div>`;
             }
+            requestAnimationFrame(() => { birthdayContainer.innerHTML = html; });
         }
     }
 
     // 3. Notices
-    const notices = await fetchData('notices');
     const noticeList = document.getElementById('notice-list');
     if (noticeList) {
-        noticeList.innerHTML = '';
         if (notices.length === 0) {
             noticeList.innerHTML = '<li>No notices available.</li>';
         } else {
-            // Show latest first (assuming higher ID or naturally coming in order, reverse for safety)
-            notices.reverse().slice(0, 10).forEach(n => {
-                const li = document.createElement('li');
-                // Extract DD Month from date "DD/MM/YYYY" or "YYYY-MM-DD"
-                // Assuming stored as DD/MM/YYYY from populate_db
+            const listHTML = notices.reverse().slice(0, 10).map(n => {
                 let dateDisplay = n.date;
-                // Try to make it look nicer e.g. "12 Feb"
-                // Parse?
-                // Simple regex for DD/MM/YYYY
                 const parts = n.date.split('/');
                 if (parts.length === 3) {
                     const dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
                     dateDisplay = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
                 }
 
-                li.innerHTML = `
+                return `
+                <li>
                     <div class="notice-item-wrapper">
                         <span class="date">${dateDisplay}</span>
                         <div class="notice-main-content">
@@ -564,10 +597,9 @@ async function loadRealData() {
                             <span class="download-text">Download</span>
                         </a>
                     </div>
-                `;
-
-                noticeList.appendChild(li);
-            });
+                </li>`;
+            }).join('');
+            requestAnimationFrame(() => { noticeList.innerHTML = listHTML; });
         }
     }
 }
@@ -690,29 +722,38 @@ async function initFacilityGallery() {
         const data = FACILITY_DATA[currentFacilityIdx];
         if (titleEl) titleEl.textContent = data.title;
         if (descEl) descEl.textContent = data.desc;
-        sliderBox.innerHTML = '';
-        data.images.forEach((img, i) => {
-            const slide = document.createElement('div');
-            slide.className = `gallery-slide ${i === currentSlideIdx ? 'active' : ''}`;
-            slide.style.backgroundImage = `url('${img}')`;
-            sliderBox.appendChild(slide);
+
+        // Optimized: Single innerHTML update
+        const slidesHTML = data.images.map((img, i) =>
+            `<div class="gallery-slide ${i === currentSlideIdx ? 'active' : ''}" style="background-image: url('${img}')"></div>`
+        ).join('');
+
+        requestAnimationFrame(() => {
+            sliderBox.innerHTML = slidesHTML;
+            updateBubbles(skipScroll);
         });
-        updateBubbles(skipScroll);
     }
 
     function updateBubbles(skipScroll) {
         if (!bubbleSidebar) return;
-        bubbleSidebar.innerHTML = '';
-        FACILITY_DATA.forEach((data, i) => {
-            const bubble = document.createElement('div');
-            bubble.className = `gallery-bubble ${i === currentFacilityIdx ? 'active' : ''}`;
-            bubble.innerHTML = `<i class="fa-solid ${data.icon}" style="color: ${data.color}"></i>`;
-            bubble.addEventListener('click', (e) => {
+
+        // Optimized: Single innerHTML update for bubbles, then attach listeners
+        const bubblesHTML = FACILITY_DATA.map((data, i) =>
+            `<div class="gallery-bubble ${i === currentFacilityIdx ? 'active' : ''}" data-idx="${i}">
+                <i class="fa-solid ${data.icon}" style="color: ${data.color}"></i>
+            </div>`
+        ).join('');
+
+        bubbleSidebar.innerHTML = bubblesHTML;
+
+        // Re-attach listeners using delegation or simple query after insert
+        const bubbles = bubbleSidebar.querySelectorAll('.gallery-bubble');
+        bubbles.forEach(b => {
+            b.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                jumpTo(i);
+                jumpTo(parseInt(b.dataset.idx));
             });
-            bubbleSidebar.appendChild(bubble);
         });
 
         if (!skipScroll) {

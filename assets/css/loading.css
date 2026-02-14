@@ -14,10 +14,19 @@
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
+.loading-screen:not(.hidden) {
+    transition: none !important;
+    /* Show instantly */
+}
+
 .loading-screen.hidden {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+}
+
+.loading-screen.initial-done .loading-spinner {
+    display: none;
 }
 
 .loading-logo {
