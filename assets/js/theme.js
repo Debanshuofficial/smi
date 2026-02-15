@@ -6,7 +6,7 @@ function initTheme() {
     const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
 
     // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
     // Sync switch state

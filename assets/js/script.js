@@ -515,56 +515,109 @@ async function loadRealData() {
     // 2. Birthdays
     const birthdayContainer = document.getElementById('birthday-container');
     if (birthdayContainer) {
-        if (!bdayResult.data || bdayResult.data.length === 0) {
+        let todayData = [];
+        let upcomingData = [];
+
+        // Check current result type
+        if (bdayResult.type === 'today') {
+            todayData = bdayResult.data || [];
+        } else if (bdayResult.type === 'upcoming') {
+            upcomingData = bdayResult.data || [];
+        }
+
+        // Determine how many upcoming we need to reach at least 3 total
+        const upcomingNeeded = Math.max(0, 3 - todayData.length);
+
+        // Fetch upcoming if we need more and don't already have them
+        // Using returnFull=false (default) to get array directly
+        if (upcomingNeeded > 0 && upcomingData.length === 0) {
+            try {
+                const upcomingResult = await fetchData('birthdays?type=upcoming');
+                if (Array.isArray(upcomingResult)) {
+                    upcomingData = upcomingResult;
+                }
+            } catch (e) { /* ignore error */ }
+        }
+
+        // Filter duplicates and prepare for randomization
+        const todayNames = new Set(todayData.map(p => p.name));
+        let candidates = upcomingData.filter(p => !todayNames.has(p.name));
+
+        // Group by daysUntil to randomize people with the same upcoming date
+        // This fulfills the requirement: "if more than 2 birthdays available on upcomming same day, show randomly"
+        const groupedByDay = {};
+        candidates.forEach(p => {
+            const day = p.daysUntil !== undefined ? p.daysUntil : 9999;
+            if (!groupedByDay[day]) groupedByDay[day] = [];
+            groupedByDay[day].push(p);
+        });
+
+        // Reconstruct list: Sort by days nearest -> furthest, but Shuffle within same-day groups
+        let randomizedList = [];
+        Object.keys(groupedByDay)
+            .sort((a, b) => Number(a) - Number(b))
+            .forEach(day => {
+                const group = groupedByDay[day];
+                // Shuffle if we have multiple people on the same day
+                if (group.length > 1) {
+                    for (let i = group.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [group[i], group[j]] = [group[j], group[i]];
+                    }
+                }
+                randomizedList.push(...group);
+            });
+
+        const finalUpcoming = randomizedList.slice(0, upcomingNeeded);
+
+        if (todayData.length === 0 && finalUpcoming.length === 0) {
             birthdayContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No birthday data.</p>';
         } else {
-            let html = '';
-            if (bdayResult.type === 'today') {
-                const createCardHTML = (person) => `
-                    <div class="birthday-card-item skyshot-card">
-                        <img src="${CONFIG.getImageUrl(person.img)}" alt="${person.name}" class="birthday-img" width="70" height="70" loading="lazy" decoding="async" style="z-index: 2;">
-                        <div style="z-index: 2; position: relative;">
-                            <div style="color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem;">
-                                Happy Birthday! <i class="fa-solid fa-cake-candles" style="color: #fff; filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #ffd700);"></i> 🎂
-                            </div>
-                            <strong style="display:block; color:var(--text-main); font-size:1.1rem;">${person.name}</strong>
-                            <div style="font-size:0.85rem; color:var(--text-muted); font-weight: 500; margin-top: 0.2rem;">
-                                ${person.role}
-                            </div>
+            const createTodayCardHTML = (person) => `
+                <div class="birthday-card-item skyshot-card">
+                    <img src="${CONFIG.getImageUrl(person.img)}" alt="${person.name}" class="birthday-img" width="70" height="70" loading="lazy" decoding="async" style="z-index: 2;">
+                    <div style="z-index: 2; position: relative;">
+                        <div style="color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                            Happy Birthday! <i class="fa-solid fa-cake-candles" style="color: #fff; filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #ffd700);"></i> 🎂
                         </div>
-                    </div>`;
-
-                if (bdayResult.data.length > 3) {
-                    const list = [...bdayResult.data, ...bdayResult.data];
-                    html = `<div class="scroll-wrapper">${list.map(createCardHTML).join('')}</div>`;
-                } else {
-                    html = bdayResult.data.map(createCardHTML).join('');
-                }
-            } else {
-                // Upcoming
-                const listItems = bdayResult.data.map(person => {
-                    let dayDisp = "??";
-                    if (person.dob.includes('/')) dayDisp = person.dob.split('/')[0];
-                    else if (person.dob.includes('-')) dayDisp = person.dob.split('-')[2];
-
-                    return `
-                    <div class="birthday-card-item" style="opacity:0.9">
-                         <div class="birthday-icon-wrapper" style="background:none; border:1px solid var(--glass-border);">
-                            <span style="font-size:0.8rem; font-weight:bold;">${dayDisp}</span>
+                        <strong style="display:block; color:var(--text-main); font-size:1.1rem;">${person.name}</strong>
+                        <div style="font-size:0.85rem; color:var(--text-muted); font-weight: 500; margin-top: 0.2rem;">
+                            ${person.role}
                         </div>
-                        <div>
-                            <strong style="display:block; color:var(--text-main); font-size:0.9rem;">${person.name} (${person.role})</strong>
-                            <div style="font-size:0.75rem; opacity:0.8;">In ${person.daysUntil} Days</div>
-                        </div>
-                    </div>`;
-                }).join('');
-
-                html = `
-                <p style="text-align:center; color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">No birthdays today.</p>
-                <div style="border-top:1px solid var(--glass-border); padding-top:0.5rem;">
-                    <h5 style="color:var(--secondary-accent); margin-bottom:0.5rem;">Upcoming Birthdays:</h5>
-                    ${listItems}
+                    </div>
                 </div>`;
+
+            const createUpcomingItemHTML = (person) => {
+                let dayDisp = "??";
+                if (person.dob && person.dob.includes('/')) dayDisp = person.dob.split('/')[0];
+                else if (person.dob && person.dob.includes('-')) dayDisp = person.dob.split('-')[2];
+
+                return `
+                <div class="birthday-card-item" style="opacity:0.9">
+                    <div class="birthday-icon-wrapper" style="background:none; border:1px solid var(--glass-border);">
+                        <span style="font-size:0.8rem; font-weight:bold;">${dayDisp}</span>
+                    </div>
+                    <div>
+                        <strong style="display:block; color:var(--text-main); font-size:0.9rem;">${person.name} (${person.role})</strong>
+                        <div style="font-size:0.75rem; opacity:0.8;">In ${person.daysUntil} Days</div>
+                    </div>
+                </div>`;
+            };
+
+            let html = '';
+            if (todayData.length > 3) {
+                // Scroll if more than 3 today
+                const list = [...todayData, ...todayData];
+                html = `<div class="scroll-wrapper">${list.map(createTodayCardHTML).join('')}</div>`;
+            } else {
+                // Show today's + fillers
+                html = todayData.map(createTodayCardHTML).join('');
+                if (finalUpcoming.length > 0) {
+                    const upcomingHeader = todayData.length > 0 ?
+                        `<h5 style="color:var(--secondary-accent); margin: 0.8rem 0 0.5rem 0; width: 100%; border-top: 1px solid var(--glass-border); padding-top: 0.5rem; font-size: 0.9rem;">Upcoming Birthdays:</h5>` :
+                        `<h5 style="color:var(--secondary-accent); margin: 0 0 0.5rem 0; width: 100%; font-size: 0.9rem;">Upcoming Birthdays:</h5>`;
+                    html += upcomingHeader + finalUpcoming.map(createUpcomingItemHTML).join('');
+                }
             }
             requestAnimationFrame(() => { birthdayContainer.innerHTML = html; });
         }
