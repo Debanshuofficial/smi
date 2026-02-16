@@ -117,21 +117,28 @@ function updatePrincipal(staff, imgSrc) {
 }
 
 function updateFounder(staff, imgSrc) {
-    const founderImg = document.querySelector('.founder-msg-card .founder-img');
-    const founderName = document.getElementById('founder-name');
+    const founderImgs = document.querySelectorAll('.founder-msg-card .founder-img, .founder-home-msg-card .founder-img');
+    const founderNames = document.querySelectorAll('#founder-name, .founder-name-home');
     const founderMsg = document.getElementById('founder-msg');
+    const homeFounderMsg = document.getElementById('home-founder-msg');
 
-    if (founderImg) {
-        founderImg.src = imgSrc;
-        founderImg.onerror = () => { founderImg.src = CONFIG.getStaticImage('placeholder'); };
-    }
+    founderImgs.forEach(img => {
+        if (img) {
+            img.src = imgSrc;
+            img.onerror = () => { img.src = CONFIG.getStaticImage('placeholder'); };
+        }
+    });
 
-    if (founderName) {
-        founderName.textContent = staff.name;
-    }
+    founderNames.forEach(name => {
+        if (name) name.textContent = staff.name;
+    });
 
-    if (founderMsg) {
-        founderMsg.textContent = staff.designation || "Dedicated to excellence in education.";
+    // Update messages if providing specific content, otherwise fall back to what's in HTML (for Bengali quote)
+    const finalMsg = staff.message || (founderMsg ? founderMsg.textContent.trim() : null);
+
+    if (finalMsg) {
+        if (founderMsg) founderMsg.textContent = finalMsg;
+        if (homeFounderMsg) homeFounderMsg.textContent = finalMsg;
     }
 }
 
@@ -163,6 +170,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Async Data Loading
     (async () => {
         try { await initSlider(); } catch (e) { /* console.error("Slider Error:", e); */ }
+
+        // Before loading real data, sync any hardcoded content that serves as source of truth
+        const sourceMsg = document.getElementById('founder-msg');
+        const targetMsg = document.getElementById('home-founder-msg');
+        if (sourceMsg && targetMsg) {
+            targetMsg.textContent = sourceMsg.textContent.trim();
+        }
+
         try { await loadRealData(); } catch (e) { /* console.error("Data Load Error:", e); */ }
         try { await loadStaffData(); } catch (e) { /* console.error("Staff Load Error:", e); */ }
         try { await initFacilityGallery(); } catch (e) { /* console.error("Gallery Error:", e); */ }
